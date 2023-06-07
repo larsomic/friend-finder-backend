@@ -13,11 +13,16 @@ router.post('/signup', async (req, res) => {
       password: hashedPassword,
       name: req.body.name,
     });
+    
     const savedUser = await user.save();
     const token = jwt.sign({ _id: savedUser._id }, 'YOUR_SECRET_KEY');
-    res.cookie('token', token, { httpOnly: true, sameSite: 'None' });
+    res.cookie('token', token, { httpOnly: true });
     res.json({ message: "User created successfully" });
   } catch (err) {
+    if (err.code==11000){
+      return res.status(409).json({ message: "Error: An account with this email already exists." });
+    }
+    console.log(err)
     res.status(400).send(err);
   }
 });
@@ -30,11 +35,11 @@ router.post('/login', async (req, res) => {
   if (!validPassword) return res.status(400).send('Invalid password');
 
   const token = jwt.sign({ _id: user._id }, 'YOUR_SECRET_KEY');
-  res.cookie('token', token, { httpOnly: true});
+  res.cookie('token', token, { httpOnly: true });
   res.json({ message: "User logged in successfully" });
 });
 
-router.post('/logout', (req, res) => {
+router.get('/logout', (req, res) => {
   res.clearCookie('token');
   res.send({ status: 'logged out' });
 });
