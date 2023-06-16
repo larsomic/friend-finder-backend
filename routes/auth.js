@@ -15,7 +15,7 @@ router.post('/signup', async (req, res) => {
     });
     
     const savedUser = await user.save();
-    const token = jwt.sign({ _id: savedUser._id }, 'YOUR_SECRET_KEY');
+    const token = jwt.sign({ _id: savedUser._id }, process.env.JWT_SECRET_TOKEN);
     res.cookie('token', token, { httpOnly: true });
     res.json({ message: "User created successfully" });
   } catch (err) {
@@ -34,7 +34,7 @@ router.post('/login', async (req, res) => {
   const validPassword = await bcrypt.compare(req.body.password, user.password);
   if (!validPassword) return res.status(400).send('Invalid password');
 
-  const token = jwt.sign({ _id: user._id }, 'YOUR_SECRET_KEY');
+  const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET_TOKEN);
   res.cookie('token', token, { httpOnly: true });
   res.json({ message: "User logged in successfully" });
 });
@@ -48,7 +48,7 @@ router.get('/status', (req, res) => {
   try {
     const token = req.cookies.token;
     if (!token) throw new Error('Unauthenticated');
-    jwt.verify(token, 'YOUR_SECRET_KEY');
+    jwt.verify(token, process.env.JWT_SECRET_TOKEN);
     res.send({ status: 'authenticated' });
   } catch (err){
     console.log(err)
