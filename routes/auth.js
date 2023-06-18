@@ -44,6 +44,7 @@ router.get('/logout', (req, res) => {
   res.send({ status: 'logged out' });
 });
 
+
 router.get('/status', (req, res) => {
   try {
     const token = req.cookies.token;
