@@ -26,6 +26,10 @@ app.use(express.json());
 const authRouter = require('./routes/auth');
 app.use('/api/auth', authRouter);
 
+const userRouter = require('./routes/user');
+app.use('/api/user', userRouter);
+
+
 // Start the server
 app.listen(port, () => {
     console.log(`Server started on port ${port}`);
