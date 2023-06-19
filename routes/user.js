@@ -11,7 +11,7 @@ router.get('/', async (req, res) => {
     try {
       const token = req.cookies.token;
       if (!token) throw new Error('unauthenticated');
-      const decoded = jwt.verify(token, 'YOUR_SECRET_KEY');
+      const decoded = jwt.verify(token, process.env.JWT_SECRET_TOKEN);
       const userIdFromToken = decoded._id;
       const user = await User.findById(userIdFromToken);
       if (!user) {
@@ -28,7 +28,7 @@ router.patch('/', async (req, res) => {
     try {
         const token = req.cookies.token;
         if (!token) throw new Error('unauthenticated');
-        const decoded = jwt.verify(token, 'YOUR_SECRET_KEY');
+        const decoded = jwt.verify(token, process.env.JWT_SECRET_TOKEN);
         const userIdFromToken = decoded._id;
         try{
             const user = await User.findById(userIdFromToken);
