@@ -1,11 +1,9 @@
 const express = require('express');
-const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-
-const mongoose = require('mongoose');
 
 const User = require('./../models/User');
 const UserFriendPreferences = require('./../models/UserFriendPreferences');
+const UserSettings = require('./../models/UserSettings');
 
 const router = express.Router();
 
@@ -91,6 +89,49 @@ router.patch('/userfriendpreferences', async (req, res) => {
       userFriendPreferences.inPersonPreference = req.body.inPersonPreference;
       await userFriendPreferences.save();
       res.send(userFriendPreferences);
+    }
+  } catch (err) {
+    console.log(err);
+    res.send({ status: 'unauthenticated' });
+  }
+});
+
+router.get('/settings', async (req, res) => {
+  try {
+    const token = req.cookies.token;
+    if (!token) throw new Error('unauthenticated');
+    const decoded = jwt.verify(token, process.env.JWT_SECRET_TOKEN);
+    const userIdFromToken = decoded._id;
+    const settings = await UserSettings.findOne({ user: userIdFromToken });
+    if (!settings) {
+      throw new Error('User settings not found');
+    }
+    res.send(settings);
+  } catch (err) {
+    console.log(err);
+    res.send({ status: 'unauthenticated' });
+  }
+});
+
+router.patch('/settings', async (req, res) => {
+  try {
+    const token = req.cookies.token;
+    if (!token) throw new Error('unauthenticated');
+    const decoded = jwt.verify(token, process.env.JWT_SECRET_TOKEN);
+    const userIdFromToken = decoded._id;
+    const settings = await UserSettings.findOne({ user: userIdFromToken });
+    console.log(settings)
+    if (!settings) {
+      const newUserSettings = new UserSettings({  
+        darkMode: req.body.darkMode,
+        user: userIdFromToken,
+      });
+      await newUserSettings.save();
+      res.send(newUserSettings);
+    } else {
+      settings.darkMode = req.body.darkMode;
+      await settings.save();
+      res.send(settings);
     }
   } catch (err) {
     console.log(err);
