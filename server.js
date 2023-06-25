@@ -29,6 +29,8 @@ app.use('/api/auth', authRouter);
 const userRouter = require('./routes/user');
 app.use('/api/user', userRouter);
 
+const matchesRouter = require('./routes/matches');
+app.use('/api/matches', matchesRouter);
 
 // Start the server
 app.listen(port, () => {
