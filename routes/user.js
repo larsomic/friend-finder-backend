@@ -48,7 +48,7 @@ router.patch('/', async (req, res) => {
       }
 });
 
-router.get('/userfriendpreferences', async (req, res) => {
+router.get('/friendpreferences', async (req, res) => {
   try {
     const token = req.cookies.token;
     if (!token) throw new Error('unauthenticated');
@@ -65,7 +65,7 @@ router.get('/userfriendpreferences', async (req, res) => {
   }
 });
 
-router.patch('/userfriendpreferences', async (req, res) => {
+router.patch('/friendpreferences', async (req, res) => {
   try {
     const token = req.cookies.token;
     if (!token) throw new Error('unauthenticated');
