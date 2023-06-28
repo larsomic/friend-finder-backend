@@ -16,23 +16,28 @@ router.get('/', async (req, res) => {
     if (!user) {
       throw new Error('User not found');
     }
-    const apiUserPreferences = await UserFriendPreferences.findOne({ user: user._id }).lean().exec()
+    try{
+      const apiUserPreferences = await UserFriendPreferences.findOne({ user: user._id }).lean().exec()
 
-    const otherUsers = await User.find({ _id: { $ne: userIdFromToken } }).select('-password');
-    
-    const matchingUsers = [];
-    for (const apiUser of otherUsers) {
-      const matchPreferences = await UserFriendPreferences.findOne({ user: apiUser._id }).lean().exec();
-      if (
-        preferencesMatch(matchPreferences, apiUserPreferences)
-      ) {
-        matchingUsers.push(apiUser);
-        console.log(matchingUsers);
+      const otherUsers = await User.find({ _id: { $ne: userIdFromToken } }).select('-password');
+      
+      const matchingUsers = [];
+      for (const apiUser of otherUsers) {
+        const matchPreferences = await UserFriendPreferences.findOne({ user: apiUser._id }).lean().exec();
+        if (
+          preferencesMatch(matchPreferences, apiUserPreferences)
+        ) {
+          matchingUsers.push(apiUser);
+          console.log(matchingUsers);
+        }
       }
+  
+      res.send(matchingUsers);
+    } catch (err){
+      console.log(err);
+      res.send({ status: 'no-prefrences' });
     }
-
-    res.send(matchingUsers);
-  } catch (err) {
+   } catch (err) {
     console.log(err);
     res.send({ status: 'unauthenticated' });
   }
