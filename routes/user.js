@@ -120,16 +120,17 @@ router.patch('/settings', async (req, res) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET_TOKEN);
     const userIdFromToken = decoded._id;
     const settings = await UserSettings.findOne({ user: userIdFromToken });
-    console.log(settings)
     if (!settings) {
       const newUserSettings = new UserSettings({  
         darkMode: req.body.darkMode,
+        selectedColor: req.body.selectedColor,
         user: userIdFromToken,
       });
       await newUserSettings.save();
       res.send(newUserSettings);
     } else {
       settings.darkMode = req.body.darkMode;
+      settings.selectedColor = req.body.selectedColor;
       await settings.save();
       res.send(settings);
     }
