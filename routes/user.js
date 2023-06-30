@@ -10,7 +10,9 @@ const router = express.Router();
 router.get('/', async (req, res) => {
     try {
       const token = req.cookies.token;
-      if (!token) throw new Error('unauthenticated');
+      if (!token) {
+        res.status(401).send({ status: 'unauthenticated' });
+      };
       const decoded = jwt.verify(token, process.env.JWT_SECRET_TOKEN);
       const userIdFromToken = decoded._id;
       const user = await User.findById(userIdFromToken);
@@ -20,14 +22,16 @@ router.get('/', async (req, res) => {
       res.send(user);
     } catch (err){
       console.log(err)
-      res.send({ status: 'unauthenticated' });
+      res.status(500).send({ status: 'Error getting user' });
     }
   });
 
 router.patch('/', async (req, res) => {
     try {
         const token = req.cookies.token;
-        if (!token) throw new Error('unauthenticated');
+        if (!token) {
+          res.status(401).send({ status: 'unauthenticated' });
+        };
         const decoded = jwt.verify(token, process.env.JWT_SECRET_TOKEN);
         const userIdFromToken = decoded._id;
         try{
@@ -44,31 +48,43 @@ router.patch('/', async (req, res) => {
         }
       } catch (err){
         console.log(err)
-        res.send({ status: 'unauthenticated' });
+        res.status(500).send({ status: 'Error patching user' });
       }
 });
 
 router.get('/friendpreferences', async (req, res) => {
   try {
     const token = req.cookies.token;
-    if (!token) throw new Error('unauthenticated');
+    if (!token) {
+      res.status(401).send({ status: 'unauthenticated' });
+    };
     const decoded = jwt.verify(token, process.env.JWT_SECRET_TOKEN);
     const userIdFromToken = decoded._id;
     const userFriendPreferences = await UserFriendPreferences.findOne({ user: userIdFromToken });
     if (!userFriendPreferences) {
-      throw new Error('UserFriendPreferences not found');
+      const newUserFriendPreferences = new UserFriendPreferences({  
+        attractedTo: "Everyone",
+        religion: "Everyone",
+        miles: 30,
+        inPersonPreference: 'inperson',
+        user: userIdFromToken,
+      });
+      await newUserFriendPreferences.save();
+      return res.send(newUserFriendPreferences);
     }
     res.send(userFriendPreferences);
   } catch (err) {
     console.log(err);
-    res.send({ status: 'unauthenticated' });
+    res.status(500).send({ status: 'Error getting friend prefrence' });
   }
 });
 
 router.patch('/friendpreferences', async (req, res) => {
   try {
     const token = req.cookies.token;
-    if (!token) throw new Error('unauthenticated');
+    if (!token) {
+      res.status(401).send({ status: 'unauthenticated' });
+    };
     const decoded = jwt.verify(token, process.env.JWT_SECRET_TOKEN);
     const userIdFromToken = decoded._id;
     const userFriendPreferences = await UserFriendPreferences.findOne({ user: userIdFromToken });
@@ -92,31 +108,41 @@ router.patch('/friendpreferences', async (req, res) => {
     }
   } catch (err) {
     console.log(err);
-    res.send({ status: 'unauthenticated' });
+    res.status(500).send({ status: 'Error patching friend preferences' });
   }
 });
 
 router.get('/settings', async (req, res) => {
   try {
     const token = req.cookies.token;
-    if (!token) throw new Error('unauthenticated');
+    if (!token) {
+      res.status(401).send({ status: 'unauthenticated' });
+    };  
     const decoded = jwt.verify(token, process.env.JWT_SECRET_TOKEN);
     const userIdFromToken = decoded._id;
     const settings = await UserSettings.findOne({ user: userIdFromToken });
     if (!settings) {
-      throw new Error('User settings not found');
+      const newUserSettings = new UserSettings({  
+        darkMode: false,
+        selectedColor: "Blue",
+        user: userIdFromToken,
+      });
+      await newUserSettings.save();
+      return res.send(newUserSettings);
     }
     res.send(settings);
   } catch (err) {
     console.log(err);
-    res.send({ status: 'unauthenticated' });
+    res.status(500).send({ status: 'Error getting settings' });
   }
 });
 
 router.patch('/settings', async (req, res) => {
   try {
     const token = req.cookies.token;
-    if (!token) throw new Error('unauthenticated');
+    if (!token) {
+      res.status(401).send({ status: 'unauthenticated' });
+    };
     const decoded = jwt.verify(token, process.env.JWT_SECRET_TOKEN);
     const userIdFromToken = decoded._id;
     const settings = await UserSettings.findOne({ user: userIdFromToken });
@@ -136,7 +162,7 @@ router.patch('/settings', async (req, res) => {
     }
   } catch (err) {
     console.log(err);
-    res.send({ status: 'unauthenticated' });
+    res.status(500).send({ status: 'Error patching settings' });
   }
 });
 
