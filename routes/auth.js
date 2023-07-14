@@ -16,7 +16,8 @@ router.post('/signup', async (req, res) => {
     
     const savedUser = await user.save();
     const token = jwt.sign({ _id: savedUser._id }, process.env.JWT_SECRET_TOKEN);
-    res.cookie('token', token, { httpOnly: true });
+    const domain = process.env.NODE_ENV === 'production' ? '.vercel.app' : 'localhost';
+    res.cookie('token', token, { domain, httpOnly: true });
     res.json({ message: "User created successfully" });
   } catch (err) {
     if (err.code==11000){
@@ -35,7 +36,8 @@ router.post('/login', async (req, res) => {
   if (!validPassword) return res.status(400).send('Invalid password');
 
   const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET_TOKEN);
-  res.cookie('token', token, { httpOnly: true });
+  const domain = process.env.NODE_ENV === 'production' ? '.vercel.app' : 'localhost';
+  res.cookie('token', token, { domain, httpOnly: true });
   res.json({ message: "User logged in successfully" });
 });
 
