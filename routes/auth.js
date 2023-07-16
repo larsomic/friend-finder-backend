@@ -1,10 +1,8 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-
 const User = require('./../models/User');
 const router = express.Router();
-
 router.post('/signup', async (req, res) => {
   try {
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
@@ -13,11 +11,10 @@ router.post('/signup', async (req, res) => {
       password: hashedPassword,
       name: req.body.name,
     });
-    
+
     const savedUser = await user.save();
     const token = jwt.sign({ _id: savedUser._id }, process.env.JWT_SECRET_TOKEN);
-    const domain = process.env.NODE_ENV === 'production' ? '.vercel.app' : 'localhost';
-    res.cookie('token', token, { domain: '.vercel.app', httpOnly: true, sameSite: 'None', secure: true });
+    res.cookie('token', token, { httpOnly: true });
     res.json({ message: "User created successfully" });
   } catch (err) {
     if (err.code==11000){
@@ -27,17 +24,14 @@ router.post('/signup', async (req, res) => {
     res.status(400).send(err);
   }
 });
-
 router.post('/login', async (req, res) => {
   const user = await User.findOne({ email: req.body.email });
   if (!user) return res.status(400).send('User not found');
-
   const validPassword = await bcrypt.compare(req.body.password, user.password);
   if (!validPassword) return res.status(400).send('Invalid password');
 
   const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET_TOKEN);
-  const domain = process.env.NODE_ENV === 'production' ? '.vercel.app' : 'localhost';
-  res.cookie('token', token, { domain: '.vercel.app', httpOnly: true, sameSite: 'None', secure: true });
+  res.cookie('token', token, { httpOnly: true });
   res.json({ message: "User logged in successfully" });
 });
 
@@ -45,8 +39,6 @@ router.get('/logout', (req, res) => {
   res.clearCookie('token');
   res.send({ status: 'logged out' });
 });
-
-
 router.get('/status', (req, res) => {
   try {
     const token = req.cookies.token;
@@ -58,5 +50,4 @@ router.get('/status', (req, res) => {
     res.send({ status: 'unauthenticated' });
   }
 });
-
 module.exports = router;
