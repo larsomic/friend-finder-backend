@@ -1,11 +1,12 @@
-const express = require('express');
-const jwt = require('jsonwebtoken');
+import { Router } from 'express';
+import { verify } from 'jsonwebtoken';
 
-const User = require('./../models/User');
-const UserFriendPreferences = require('./../models/UserFriendPreferences');
-const UserSettings = require('./../models/UserSettings');
+import User from './../models/User.js';
 
-const router = express.Router();
+import UserFriendPreferences from './../models/UserFriendPreferences.js';
+import UserSettings from './../models/UserSettings.js';
+
+const router = Router();
 
 router.get('/', async (req, res) => {
     try {
@@ -13,7 +14,7 @@ router.get('/', async (req, res) => {
       if (!token) {
         res.status(401).send({ status: 'unauthenticated' });
       };
-      const decoded = jwt.verify(token, process.env.JWT_SECRET_TOKEN);
+      const decoded = verify(token, process.env.JWT_SECRET_TOKEN);
       const userIdFromToken = decoded._id;
       const user = await User.findById(userIdFromToken);
       if (!user) {
@@ -32,7 +33,7 @@ router.patch('/', async (req, res) => {
         if (!token) {
           res.status(401).send({ status: 'unauthenticated' });
         };
-        const decoded = jwt.verify(token, process.env.JWT_SECRET_TOKEN);
+        const decoded = verify(token, process.env.JWT_SECRET_TOKEN);
         const userIdFromToken = decoded._id;
         try{
             const user = await User.findById(userIdFromToken);
@@ -58,7 +59,7 @@ router.get('/friendpreferences', async (req, res) => {
     if (!token) {
       res.status(401).send({ status: 'unauthenticated' });
     };
-    const decoded = jwt.verify(token, process.env.JWT_SECRET_TOKEN);
+    const decoded = verify(token, process.env.JWT_SECRET_TOKEN);
     const userIdFromToken = decoded._id;
     const userFriendPreferences = await UserFriendPreferences.findOne({ user: userIdFromToken });
     if (!userFriendPreferences) {
@@ -85,9 +86,10 @@ router.patch('/friendpreferences', async (req, res) => {
     if (!token) {
       res.status(401).send({ status: 'unauthenticated' });
     };
-    const decoded = jwt.verify(token, process.env.JWT_SECRET_TOKEN);
+    const decoded = verify(token, process.env.JWT_SECRET_TOKEN);
     const userIdFromToken = decoded._id;
     const userFriendPreferences = await UserFriendPreferences.findOne({ user: userIdFromToken });
+
     if (!userFriendPreferences) {
       const newUserFriendPreferences = new UserFriendPreferences({  
         attractedTo: req.body.attractedTo,
@@ -118,7 +120,7 @@ router.get('/settings', async (req, res) => {
     if (!token) {
       res.status(401).send({ status: 'unauthenticated' });
     };  
-    const decoded = jwt.verify(token, process.env.JWT_SECRET_TOKEN);
+    const decoded = verify(token, process.env.JWT_SECRET_TOKEN);
     const userIdFromToken = decoded._id;
     const settings = await UserSettings.findOne({ user: userIdFromToken });
     if (!settings) {
@@ -143,7 +145,7 @@ router.patch('/settings', async (req, res) => {
     if (!token) {
       res.status(401).send({ status: 'unauthenticated' });
     };
-    const decoded = jwt.verify(token, process.env.JWT_SECRET_TOKEN);
+    const decoded = verify(token, process.env.JWT_SECRET_TOKEN);
     const userIdFromToken = decoded._id;
     const settings = await UserSettings.findOne({ user: userIdFromToken });
     if (!settings) {
@@ -166,4 +168,4 @@ router.patch('/settings', async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;
