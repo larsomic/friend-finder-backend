@@ -13,7 +13,7 @@ router.post('/signup', async (req, res) => {
       password: hashedPassword,
       name: req.body.name,
     });
-    
+
     const savedUser = await user.save();
     const token = sign({ _id: savedUser._id }, process.env.JWT_SECRET_TOKEN);
     res.cookie('token', token, { httpOnly: true });
@@ -26,7 +26,6 @@ router.post('/signup', async (req, res) => {
     res.status(400).send(err);
   }
 });
-
 router.post('/login', async (req, res) => {
   const user = await User.findOne({ email: req.body.email });
   if (!user) return res.status(400).send('User not found');
