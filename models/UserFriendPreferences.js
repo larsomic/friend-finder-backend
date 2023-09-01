@@ -1,7 +1,6 @@
-const mongoose = require('mongoose');
-const User = require('./User');
+import { Schema, model } from 'mongoose';
 
-const UserFriendPreferencesSchema = new mongoose.Schema({
+const UserFriendPreferencesSchema = new Schema({
   attractedTo: [{
     type: String,
   }],
@@ -15,12 +14,12 @@ const UserFriendPreferencesSchema = new mongoose.Schema({
     type: String,
   },
   user: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: Schema.Types.ObjectId,
     ref: 'User',
     required: true,
   },
 });
 
-const UserFriendPreferences = mongoose.model('UserFriendPreferences', UserFriendPreferencesSchema);
+const UserFriendPreferences = model('UserFriendPreferences', UserFriendPreferencesSchema);
 
-module.exports = UserFriendPreferences;
+export default UserFriendPreferences;
